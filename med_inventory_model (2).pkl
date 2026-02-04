@@ -1,0 +1,27 @@
+import streamlit as st
+import pandas as pd
+import joblib
+
+# Title and Layout
+st.set_page_config(page_title="MedOps AI", page_icon="🏥")
+st.title("🏥 MedOps AI: Inventory Predictor")
+
+# Sidebar for inputs
+st.sidebar.header("Current Conditions")
+stock = st.sidebar.slider("Current Stock Level", 0, 1000, 150)
+flu_rate = st.sidebar.slider("Local Flu Rate (%)", 0, 100, 5)
+
+# Prediction Logic
+try:
+    # This loads the "brain" you created in Jupyter
+    model = joblib.load("med_inventory_model.pkl")
+    
+    if st.button("Predict Demand"):
+        # Matches the [stock, day, flu_rate] format from your training
+        prediction = model.predict([[stock, 0, flu_rate]]) 
+        st.success(f"Predicted Demand: {int(prediction[0])} units")
+        
+        if int(prediction[0]) > stock:
+            st.warning("⚠️ Warning: Predicted demand exceeds current stock!")
+except:
+    st.error("Model file not found. Please upload 'med_inventory_model.pkl' to GitHub.")
